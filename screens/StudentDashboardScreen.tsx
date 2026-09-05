@@ -137,23 +137,25 @@ export default function StudentDashboardScreen({
       </Text>
 
       <TouchableOpacity
-        style={styles.card}
-        onPress={() => navigation.navigate('Quizzes')}
-      >
-        <Text style={styles.icon}>▣</Text>
+  style={styles.card}
+  onPress={() =>
+    navigation.navigate('Quizzes', {
+      studentId,
+    })
+  }
+>
+  <Text style={styles.icon}>▣</Text>
 
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>
-            Take a Test
-          </Text>
+  <View style={styles.cardContent}>
+    <Text style={styles.cardTitle}>
+      Take a Test
+    </Text>
 
-          <Text style={styles.cardDescription}>
-            View and attempt teacher-created tests
-          </Text>
-        </View>
-
-        <Text style={styles.arrow}>→</Text>
-      </TouchableOpacity>
+    <Text style={styles.cardDescription}>
+      View and attempt teacher-created tests
+    </Text>
+  </View>
+</TouchableOpacity>
 
       <TouchableOpacity
         style={styles.card}

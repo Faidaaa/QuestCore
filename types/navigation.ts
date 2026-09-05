@@ -18,13 +18,16 @@ export type RootStackParamList = {
 
   Attendance: undefined;
 
-  Quizzes: undefined;
+  Quizzes: {
+  studentId?: string;
+} | undefined;
 
   CreateTest: undefined;
 
   Quiz: {
-    quizId: string;
-  };
+  quizId: string;
+  studentId?: string;
+};
 
   TeacherResults: undefined;
 

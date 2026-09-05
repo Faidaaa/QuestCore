@@ -8,9 +8,10 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
 import { getDatabase } from '../database/database';
-
+type Props = NativeStackScreenProps<RootStackParamList, 'Quizzes'>;
 type Quiz = {
   id: string;
   title: string;
@@ -18,7 +19,7 @@ type Quiz = {
   questions_json: string;
 };
 
-export default function QuizListScreen({ navigation }: any) {
+export default function QuizListScreen({ navigation, route }: Props) {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,10 +125,11 @@ export default function QuizListScreen({ navigation }: any) {
                 <TouchableOpacity
                   style={styles.startButton}
                   onPress={() =>
-                    navigation.navigate('Quiz', {
-                      quizId: quiz.id,
-                    })
-                  }
+  navigation.navigate('Quiz', {
+    quizId: quiz.id,
+    studentId: route.params?.studentId,
+  })
+}
                 >
                   <Text style={styles.startButtonText}>
                     START TEST →

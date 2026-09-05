@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 
 import { getDatabase } from '../database/database';
-
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+type Props = NativeStackScreenProps<RootStackParamList, 'Quiz'>;
 type Question = {
   id: string;
   question: string;
@@ -26,8 +28,8 @@ type Quiz = {
   questions_json: string;
 };
 
-export default function QuizScreen({ route, navigation }: any) {
-  const { quizId } = route.params;
+export default function QuizScreen({ navigation, route }: Props) {
+  const { quizId, studentId } = route.params;
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
