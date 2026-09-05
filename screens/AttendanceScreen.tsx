@@ -16,6 +16,8 @@ type AttendanceStudent = Student & {
 
 export default function AttendanceScreen() {
   const [students, setStudents] = useState<AttendanceStudent[]>([]);
+  const [grades, setGrades] = useState<string[]>([]);
+  const [selectedGrade, setSelectedGrade] = useState<string>('ALL');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -32,12 +34,17 @@ export default function AttendanceScreen() {
         LEFT JOIN attendance
           ON students.id = attendance.student_id
           AND attendance.date = ?
-        ORDER BY students.name ASC
+        ORDER BY students.grade ASC, students.name ASC
         `,
         today
       );
 
       setStudents(result);
+      setGrades(
+        [...new Set(result.map((student) => student.grade))].sort(
+          (a, b) => Number(a) - Number(b)
+        )
+      );
     } catch (error) {
       console.error('Failed to load attendance:', error);
     }
@@ -74,7 +81,12 @@ export default function AttendanceScreen() {
     loadAttendance();
   }, []);
 
-  const presentCount = students.filter(
+  const visibleStudents =
+    selectedGrade === 'ALL'
+      ? students
+      : students.filter((student) => student.grade === selectedGrade);
+
+  const presentCount = visibleStudents.filter(
     (student) => student.status === 'PRESENT'
   ).length;
 
@@ -85,6 +97,45 @@ export default function AttendanceScreen() {
       <Text style={styles.date}>
         {today}
       </Text>
+
+      <View style={styles.gradeSelector}>
+        <TouchableOpacity
+          style={[
+            styles.gradeButton,
+            selectedGrade === 'ALL' && styles.selectedGradeButton,
+          ]}
+          onPress={() => setSelectedGrade('ALL')}
+        >
+          <Text
+            style={[
+              styles.gradeButtonText,
+              selectedGrade === 'ALL' && styles.selectedGradeButtonText,
+            ]}
+          >
+            All
+          </Text>
+        </TouchableOpacity>
+
+        {grades.map((grade) => (
+          <TouchableOpacity
+            key={grade}
+            style={[
+              styles.gradeButton,
+              selectedGrade === grade && styles.selectedGradeButton,
+            ]}
+            onPress={() => setSelectedGrade(grade)}
+          >
+            <Text
+              style={[
+                styles.gradeButtonText,
+                selectedGrade === grade && styles.selectedGradeButtonText,
+              ]}
+            >
+              Grade {grade}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <View style={styles.summaryCard}>
         <View>
@@ -98,7 +149,7 @@ export default function AttendanceScreen() {
 
         <View>
           <Text style={styles.summaryNumber}>
-            {students.length - presentCount}
+            {visibleStudents.length - presentCount}
           </Text>
           <Text style={styles.summaryLabel}>
             Absent
@@ -107,7 +158,7 @@ export default function AttendanceScreen() {
 
         <View>
           <Text style={styles.summaryNumber}>
-            {students.length}
+            {visibleStudents.length}
           </Text>
           <Text style={styles.summaryLabel}>
             Total
@@ -115,41 +166,49 @@ export default function AttendanceScreen() {
         </View>
       </View>
 
-      <FlatList
-        data={students}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.studentCard}
-            onPress={() => toggleAttendance(item)}
-          >
-            <View style={styles.studentInfo}>
-              <Text style={styles.studentName}>
-                {item.name}
-              </Text>
-
-              <Text style={styles.studentGrade}>
-                Grade {item.grade}
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.statusBadge,
-                item.status === 'PRESENT'
-                  ? styles.presentBadge
-                  : styles.absentBadge,
-              ]}
+      {visibleStudents.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>
+            No students found for this grade.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={visibleStudents}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.studentCard}
+              onPress={() => toggleAttendance(item)}
             >
-              <Text style={styles.statusText}>
-                {item.status}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+              <View style={styles.studentInfo}>
+                <Text style={styles.studentName}>
+                  {item.name}
+                </Text>
+
+                <Text style={styles.studentGrade}>
+                  Grade {item.grade}
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.statusBadge,
+                  item.status === 'PRESENT'
+                    ? styles.presentBadge
+                    : styles.absentBadge,
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {item.status}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -172,6 +231,37 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontSize: 14,
     marginBottom: 20,
+  },
+
+  gradeSelector: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 18,
+  },
+
+  gradeButton: {
+    backgroundColor: '#1E293B',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+
+  selectedGradeButton: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#60A5FA',
+  },
+
+  gradeButtonText: {
+    color: '#E2E8F0',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  selectedGradeButtonText: {
+    color: '#F8FAFC',
   },
 
   summaryCard: {
@@ -197,6 +287,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     textAlign: 'center',
+  },
+
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+
+  emptyText: {
+    color: '#94A3B8',
+    fontSize: 14,
   },
 
   list: {
