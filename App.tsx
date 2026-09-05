@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  SafeAreaView,
   StyleSheet,
   Text,
+  View,
 } from 'react-native';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { initializeDatabase } from './database/database';
 import { seedDatabase } from './database/seed';
+
+import DashboardScreen from './screens/DashboardScreen';
+import StudentsScreen from './screens/StudentsScreen';
+import AttendanceScreen from './screens/AttendanceScreen';
+import QuizListScreen from './screens/QuizListScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -36,7 +46,7 @@ export default function App() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.errorTitle}>
           QuestCore failed to start
         </Text>
@@ -44,36 +54,74 @@ export default function App() {
         <Text style={styles.errorText}>
           {error}
         </Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!ready) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <ActivityIndicator size="large" />
 
         <Text style={styles.loadingText}>
           Initializing offline classroom...
         </Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>
-        QuestCore
-      </Text>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#0F172A',
+          },
 
-      <Text style={styles.subtitle}>
-        Offline Classroom Engine
-      </Text>
+          headerTintColor: '#F8FAFC',
 
-      <Text style={styles.status}>
-        ● Offline Data Secure
-      </Text>
-    </SafeAreaView>
+          headerTitleStyle: {
+            fontWeight: '700',
+          },
+
+          contentStyle: {
+            backgroundColor: '#0F172A',
+          },
+        }}
+      >
+        <Stack.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="Students"
+          component={StudentsScreen}
+          options={{
+            title: 'Students',
+          }}
+        />
+
+        <Stack.Screen
+          name="Attendance"
+          component={AttendanceScreen}
+          options={{
+            title: 'Attendance',
+          }}
+        />
+
+        <Stack.Screen
+          name="Quizzes"
+          component={QuizListScreen}
+          options={{
+            title: 'Quizzes',
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -84,24 +132,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-  },
-
-  title: {
-    color: '#F8FAFC',
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-
-  subtitle: {
-    color: '#94A3B8',
-    fontSize: 16,
-    marginBottom: 24,
-  },
-
-  status: {
-    color: '#94A3B8',
-    fontSize: 14,
   },
 
   loadingText: {
