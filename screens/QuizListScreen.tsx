@@ -16,6 +16,7 @@ type Quiz = {
   id: string;
   title: string;
   subject: string;
+  grade: string;
   questions_json: string;
 };
 
@@ -26,15 +27,33 @@ export default function QuizListScreen({ navigation, route }: Props) {
   const loadQuizzes = async () => {
     try {
       const db = await getDatabase();
-
-      const result = await db.getAllAsync<Quiz>(
-        `
+      let query = `
         SELECT *
         FROM quizzes
         ORDER BY rowid DESC
-        `
-      );
+      `;
 
+      if (route.params?.studentId) {
+        const student = await db.getFirstAsync<{ grade: string }>(
+          `SELECT grade FROM students WHERE id = ?`,
+          route.params.studentId
+        );
+
+        if (student) {
+          query = `
+            SELECT *
+            FROM quizzes
+            WHERE grade = ?
+            ORDER BY rowid DESC
+          `;
+
+          const result = await db.getAllAsync<Quiz>(query, student.grade);
+          setQuizzes(result);
+          return;
+        }
+      }
+
+      const result = await db.getAllAsync<Quiz>(query);
       setQuizzes(result);
     } catch (error) {
       console.error('Failed to load quizzes:', error);
@@ -112,6 +131,10 @@ export default function QuizListScreen({ navigation, route }: Props) {
 
                   <Text style={styles.quizSubject}>
                     {quiz.subject}
+                  </Text>
+
+                  <Text style={styles.quizGrade}>
+                    Grade {quiz.grade}
                   </Text>
 
                   <Text style={styles.questionCount}>
@@ -241,8 +264,13 @@ const styles = StyleSheet.create({
 
   quizSubject: {
     color: '#94A3B8',
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 14,    marginBottom: 4,
+  },
+
+  quizGrade: {
+    color: '#93C5FD',
+    fontSize: 12,
+    fontWeight: '700',    marginBottom: 8,
   },
 
   questionCount: {

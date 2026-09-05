@@ -18,6 +18,7 @@ export interface Quiz {
   id: string;
   title: string;
   subject: string;
+  grade: string;
   questions_json: string;
 }
 

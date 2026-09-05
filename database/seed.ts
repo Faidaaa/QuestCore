@@ -23,6 +23,7 @@ const quizzes = [
     id: 'QUIZ001',
     title: 'Math Fundamentals',
     subject: 'Mathematics',
+    grade: '8',
     questions: [
       {
         id: 'Q1',
@@ -52,6 +53,7 @@ const quizzes = [
     id: 'QUIZ002',
     title: 'Computer Science Basics',
     subject: 'Computer Science',
+    grade: '9',
     questions: [
       {
         id: 'Q1',
@@ -86,6 +88,7 @@ const quizzes = [
     id: 'QUIZ003',
     title: 'Science Explorer',
     subject: 'Science',
+    grade: '10',
     questions: [
       {
         id: 'Q1',
@@ -178,12 +181,13 @@ if ((userCount?.count ?? 0) === 0) {
         await db.runAsync(
           `
           INSERT INTO quizzes
-            (id, title, subject, questions_json)
-          VALUES (?, ?, ?, ?)
+            (id, title, subject, grade, questions_json)
+          VALUES (?, ?, ?, ?, ?)
           `,
           quiz.id,
           quiz.title,
           quiz.subject,
+          quiz.grade,
           JSON.stringify(quiz.questions)
         );
       }

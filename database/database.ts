@@ -52,9 +52,9 @@ export async function initializeDatabase(): Promise<void> {
       id TEXT PRIMARY KEY NOT NULL,
       title TEXT NOT NULL,
       subject TEXT NOT NULL,
+      grade TEXT NOT NULL DEFAULT 'ALL',
       questions_json TEXT NOT NULL
     );
-    
 
     CREATE TABLE IF NOT EXISTS scores (
       id TEXT PRIMARY KEY NOT NULL,
@@ -82,4 +82,18 @@ export async function initializeDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_scores_quiz
       ON scores(quiz_id);
   `);
+
+  const quizColumns = await db.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(quizzes)'
+  );
+
+  const hasGradeColumn = quizColumns.some(
+    (column) => column.name === 'grade'
+  );
+
+  if (!hasGradeColumn) {
+    await db.execAsync(
+      'ALTER TABLE quizzes ADD COLUMN grade TEXT NOT NULL DEFAULT "ALL";'
+    );
+  }
 }

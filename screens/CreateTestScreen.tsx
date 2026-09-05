@@ -22,6 +22,7 @@ type Question = {
 export default function CreateTestScreen({ navigation }: any) {
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
+  const [grade, setGrade] = useState('8');
 
   const [questionText, setQuestionText] = useState('');
   const [options, setOptions] = useState(['', '', '', '']);
@@ -89,6 +90,11 @@ export default function CreateTestScreen({ navigation }: any) {
       return;
     }
 
+    if (!grade.trim()) {
+      Alert.alert('Missing Grade', 'Please enter the grade this test is for.');
+      return;
+    }
+
     if (questions.length === 0) {
       Alert.alert(
         'No Questions',
@@ -105,12 +111,13 @@ export default function CreateTestScreen({ navigation }: any) {
       await db.runAsync(
         `
         INSERT INTO quizzes
-          (id, title, subject, questions_json)
-        VALUES (?, ?, ?, ?)
+          (id, title, subject, grade, questions_json)
+        VALUES (?, ?, ?, ?, ?)
         `,
         quizId,
         title.trim(),
         subject.trim(),
+        grade.trim(),
         JSON.stringify(questions)
       );
 
@@ -158,6 +165,16 @@ export default function CreateTestScreen({ navigation }: any) {
         placeholderTextColor="#64748B"
         value={subject}
         onChangeText={setSubject}
+      />
+
+      <Text style={styles.label}>Grade</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Example: 8"
+        placeholderTextColor="#64748B"
+        value={grade}
+        onChangeText={setGrade}
+        keyboardType="numeric"
       />
 
       <View style={styles.divider} />
