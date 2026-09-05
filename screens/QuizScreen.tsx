@@ -99,7 +99,7 @@ export default function QuizScreen({ navigation, route }: Props) {
     }
   };
 
-  const submitTest = () => {
+  const submitTest = async () => {
     const unanswered = answers.filter(
       (answer) => answer === -1
     ).length;
@@ -114,17 +114,54 @@ export default function QuizScreen({ navigation, route }: Props) {
 
       return;
     }
+    const correctAnswers = answers.filter(
+  (answer, index) => answer === questions[index].correctAnswer
+).length;
 
-    Alert.alert(
-      'Test Submitted',
-      'Your test has been submitted successfully.\n\nResults and XP will be added in the next step.',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ]
-    );
+const totalQuestions = questions.length;
+
+const score = Math.round(
+  (correctAnswers / totalQuestions) * 100
+);
+const earnedXp = questions.reduce((total, question, index) => {
+  if (answers[index] === question.correctAnswer) {
+    return total + question.xp;
+  }
+
+  return total;
+}, 0);
+if (!studentId) {
+  Alert.alert(
+    'Error',
+    'Student information is missing. Please log in again.'
+  );
+  return;
+}
+
+const db = await getDatabase();
+
+await db.runAsync(
+  `INSERT INTO scores
+   (id, student_id, quiz_id, score, earned_xp)
+   VALUES (?, ?, ?, ?, ?)`,
+  `SCORE-${Date.now()}`,
+  studentId,
+  quizId,
+  score,
+  earnedXp
+);
+
+    navigation.replace('StudentResults', {
+      studentId,
+      result: {
+        testName: quiz?.title ?? 'Quiz',
+        quizId,
+        score,
+        correctAnswers,
+        totalQuestions,
+        xpEarned: earnedXp,
+      },
+    });
   };
 
   if (loading) {

@@ -27,6 +27,7 @@ export default function StudentDashboardScreen({
     useState(0);
 
   const [testCount, setTestCount] = useState(0);
+  const [totalXp, setTotalXp] = useState(0);
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -63,6 +64,15 @@ export default function StudentDashboardScreen({
       );
 
       setTestCount(quizzes?.count ?? 0);
+
+      const xpResult = await db.getFirstAsync<{ totalXp: number }>(
+        `SELECT COALESCE(SUM(earned_xp), 0) as totalXp
+         FROM scores
+         WHERE student_id = ?`,
+        studentId
+      );
+
+      setTotalXp(xpResult?.totalXp ?? 0);
     } catch (error) {
       console.error(error);
     }
@@ -123,7 +133,7 @@ export default function StudentDashboardScreen({
 
         <View style={styles.statCard}>
           <Text style={styles.statValue}>
-            0
+            {totalXp}
           </Text>
 
           <Text style={styles.statLabel}>

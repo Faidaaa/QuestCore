@@ -33,5 +33,13 @@ export type RootStackParamList = {
 
   StudentResults: {
     studentId: string;
+    result?: {
+      testName: string;
+      quizId: string;
+      score: number;
+      correctAnswers: number;
+      totalQuestions: number;
+      xpEarned: number;
+    };
   };
 };
