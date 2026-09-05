@@ -25,6 +25,19 @@ export async function initializeDatabase(): Promise<void> {
       created_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT NOT NULL CHECK(role IN ('TEACHER', 'STUDENT')),
+  student_id TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (student_id)
+    REFERENCES students(id)
+    ON DELETE CASCADE
+);
+
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY NOT NULL,
       student_id TEXT NOT NULL,
@@ -41,6 +54,7 @@ export async function initializeDatabase(): Promise<void> {
       subject TEXT NOT NULL,
       questions_json TEXT NOT NULL
     );
+    
 
     CREATE TABLE IF NOT EXISTS scores (
       id TEXT PRIMARY KEY NOT NULL,

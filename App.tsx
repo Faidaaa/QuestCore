@@ -5,20 +5,26 @@ import {
   Text,
   View,
 } from 'react-native';
-
+import { RootStackParamList } from './types/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { initializeDatabase } from './database/database';
 import { seedDatabase } from './database/seed';
 
+import LoginScreen from './screens/LoginScreen';
+import TeacherDashboardScreen from './screens/TeacherDashboardScreen';
+import StudentDashboardScreen from './screens/StudentDashboardScreen';
+import TeacherResultsScreen from './screens/TeacherResultsScreen';
+import StudentResultsScreen from './screens/StudentResultScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import StudentsScreen from './screens/StudentsScreen';
 import AttendanceScreen from './screens/AttendanceScreen';
 import QuizListScreen from './screens/QuizListScreen';
+import QuizScreen from './screens/QuizScreen';
 import CreateTestScreen from './screens/CreateTestScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -91,6 +97,39 @@ export default function App() {
         }}
       >
         <Stack.Screen
+         name="Login"
+         component={LoginScreen}
+         options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="TeacherDashboard"
+          component={TeacherDashboardScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="StudentDashboard"
+          component={StudentDashboardScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="TeacherResults"
+          component={TeacherResultsScreen}
+          options={{
+            title: 'Student Results',
+          }}
+        />
+
+        <Stack.Screen
+          name="StudentResults"
+          component={StudentResultsScreen}
+          options={{
+            title: 'My Results',
+          }}
+        />
+        <Stack.Screen
           name="Dashboard"
           component={DashboardScreen}
           options={{
@@ -121,6 +160,10 @@ export default function App() {
             title: 'Quizzes',
           }}
         />
+        <Stack.Screen
+         name="Quiz"
+         component={QuizScreen}
+/>
         <Stack.Screen
           name="CreateTest"
           component={CreateTestScreen}
@@ -157,3 +200,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+

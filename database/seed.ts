@@ -141,6 +141,37 @@ export async function seedDatabase(): Promise<void> {
         );
       }
     }
+    const userCount = await db.getFirstAsync<{ count: number }>(
+  'SELECT COUNT(*) as count FROM users'
+);
+
+if ((userCount?.count ?? 0) === 0) {
+  await db.runAsync(
+    `INSERT INTO users
+      (id, name, username, password, role, student_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    'USER001',
+    'Teacher',
+    'teacher',
+    '1234',
+    'TEACHER',
+    null,
+    new Date().toISOString()
+  );
+
+  await db.runAsync(
+    `INSERT INTO users
+      (id, name, username, password, role, student_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    'USER002',
+    'Aarav Menon',
+    'aarav',
+    '1234',
+    'STUDENT',
+    'STU001',
+    new Date().toISOString()
+  );
+}
 
     if ((existingQuizzes?.count ?? 0) === 0) {
       for (const quiz of quizzes) {
