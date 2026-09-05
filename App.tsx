@@ -16,6 +16,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import StudentsScreen from './screens/StudentsScreen';
 import AttendanceScreen from './screens/AttendanceScreen';
 import QuizListScreen from './screens/QuizListScreen';
+import CreateTestScreen from './screens/CreateTestScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -119,6 +120,11 @@ export default function App() {
           options={{
             title: 'Quizzes',
           }}
+        />
+        <Stack.Screen
+          name="CreateTest"
+          component={CreateTestScreen}
+          options={{ title: 'Create Test' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
