@@ -1,6 +1,43 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { getDatabase } from '../database/database';
+import { useFocusEffect } from '@react-navigation/native';
 export default function DashboardScreen({ navigation }: any) {
+    const [activeStudents, setActiveStudents] = useState(0);
+    const [presentToday, setPresentToday] = useState(0);
+
+ async function loadDashboardData() {
+  try {
+    const db = await getDatabase();
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const studentResult = await db.getFirstAsync<{ count: number }>(
+      'SELECT COUNT(*) as count FROM students'
+    );
+
+    const attendanceResult = await db.getFirstAsync<{ count: number }>(
+      `
+      SELECT COUNT(*) as count
+      FROM attendance
+      WHERE date = ?
+      AND status = 'PRESENT'
+      `,
+      today
+    );
+
+    setActiveStudents(studentResult?.count ?? 0);
+    setPresentToday(attendanceResult?.count ?? 0);
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error);
+  }
+}
+
+ useFocusEffect(
+  useCallback(() => {
+    loadDashboardData();
+  }, [])
+);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>QuestCore</Text>
@@ -18,12 +55,12 @@ export default function DashboardScreen({ navigation }: any) {
 
       <View style={styles.metricsRow}>
         <View style={styles.metricCard}>
-          <Text style={styles.metricNumber}>15</Text>
+          <Text style={styles.metricNumber}>{activeStudents}</Text>
           <Text style={styles.metricLabel}>Active Students</Text>
         </View>
 
         <View style={styles.metricCard}>
-          <Text style={styles.metricNumber}>0</Text>
+          <Text style={styles.metricNumber}>{presentToday}</Text>
           <Text style={styles.metricLabel}>Present Today</Text>
         </View>
       </View>
